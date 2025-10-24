@@ -6,7 +6,7 @@ public class AuthManager : MonoBehaviour
 {
     private static AuthManager instance;
     public static AuthManager Instance => instance;
-
+        
     private FirebaseAuth auth;
     private FirebaseUser currentUser;
     private bool isInitialized = false;
@@ -58,7 +58,6 @@ public class AuthManager : MonoBehaviour
         try
         {
             Debug.Log("[Auth] 익명 로그인 시도...");
-
             AuthResult result = await auth.SignInAnonymouslyAsync().AsUniTask();
             currentUser = result.User;
 

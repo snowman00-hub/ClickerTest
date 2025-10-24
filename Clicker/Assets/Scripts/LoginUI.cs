@@ -37,7 +37,6 @@ public class LoginUI : MonoBehaviour
         anonymouslyLoginButton.onClick.AddListener(() => OnAnonyMouslyLoginButtonClicked().Forget());
         profileButton.onClick.AddListener(() =>
         {
-            AuthManager.Instance.SignOut();
             UpdateUI().Forget();
         });
 
