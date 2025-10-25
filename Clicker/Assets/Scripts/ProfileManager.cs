@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+ï»¿using Cysharp.Threading.Tasks;
 using Firebase.Database;
 using UnityEngine;
 
@@ -12,6 +12,9 @@ public class ProfileManager : MonoBehaviour
 
     private UserProfile cachedProfile;
     public UserProfile CachedProfile => cachedProfile;
+
+    private bool isInitialized = false;
+    public bool IsInitialized => isInitialized;
 
     private void Awake()
     {
@@ -27,27 +30,30 @@ public class ProfileManager : MonoBehaviour
 
     private async UniTaskVoid Start()
     {
-        await FirebaseInitializer.Instance.WaitForInitilazationAsync();
+        await UniTask.WaitUntil(()=>AuthManager.Instance.IsInitialized);
+        await LoadProfileAsync();
 
         databaseRef = FirebaseDatabase.DefaultInstance.RootReference;
         usersRef = databaseRef.Child("users");
 
-        Debug.Log("[Profile] ProfileManager ÃÊ±âÈ­ ¿Ï·á");
+        Debug.Log("[Profile] ProfileManager ì´ˆê¸°í™” ì™„ë£Œ");
+
+        isInitialized = true;
     }
 
     public async UniTask<(bool success, string error)> SaveProfileAsync(string nickname)
     {
         if (!AuthManager.Instance.IsLoggedIn)
         {
-            return (false, "[Profile] ·Î±×ÀÎ X");
+            return (false, "[Profile] ë¡œê·¸ì¸ X");
         }
 
         string userId = AuthManager.Instance.UserId;
-        string email = AuthManager.Instance.CurrentUser.Email ?? "ÀÍ¸í";
+        string email = AuthManager.Instance.CurrentUser.Email ?? "ìµëª…";
 
         try
         {
-            Debug.Log($"[Profile] ÇÁ·ÎÇÊ ÀúÀå ½Ãµµ {nickname}");
+            Debug.Log($"[Profile] í”„ë¡œí•„ ì €ì¥ ì‹œë„ {nickname}");
 
             UserProfile profile = new UserProfile(nickname, email);
             string json = profile.ToJson();
@@ -56,45 +62,45 @@ public class ProfileManager : MonoBehaviour
 
             cachedProfile = profile;
 
-            Debug.Log($"[Profile] ÇÁ·ÎÇÊ ¼º°ø {nickname}");
+            Debug.Log($"[Profile] í”„ë¡œí•„ ì €ì¥ ì„±ê³µ {nickname}");
             return (true, null);
         }
         catch (System.Exception ex)
         {
-            Debug.Log($"[Profile] ÇÁ·ÎÇÊ ½ÇÆĞ {ex.Message}");
+            Debug.Log($"[Profile] í”„ë¡œí•„ ì €ì¥ ì‹¤íŒ¨ {ex.Message}");
             return (false, ex.Message);
         }
     }
 
-    public async UniTask<(UserProfile profile, string error)> LoadProfileAsync(string nickname)
+    public async UniTask<(UserProfile profile, string error)> LoadProfileAsync()
     {
         if (!AuthManager.Instance.IsLoggedIn)
         {
-            return (null, "[Profile] ·Î±×ÀÎ X");
+            return (null, "[Profile] ë¡œê·¸ì¸ X");
         }
 
         string userId = AuthManager.Instance.UserId;
 
         try
         {
-            Debug.Log($"[Profile] ÇÁ·ÎÇÊ ·Îµå ½Ãµµ {nickname}");
+            Debug.Log($"[Profile] í”„ë¡œí•„ ë¡œë“œ ì‹œë„ {userId}");
             DataSnapshot snapshot = await usersRef.Child(userId).GetValueAsync().AsUniTask();
 
             if (!snapshot.Exists)
             {
-                Debug.Log($"[Profile] ÇÁ·ÎÇÊ ¾øÀ½");
-                return (null, "[Profile] ÇÁ·ÎÇÊ ¾øÀ½");
+                Debug.Log($"[Profile] í”„ë¡œí•„ ì—†ìŒ");
+                return (null, "[Profile] í”„ë¡œí•„ ì—†ìŒ");
             }
 
             string json = snapshot.GetRawJsonValue();
             cachedProfile = UserProfile.FromJson(json);
 
-            Debug.Log($"[Profile] ÇÁ·ÎÇÊ ·Îµå ¼º°ø {nickname}");
+            Debug.Log($"[Profile] í”„ë¡œí•„ ë¡œë“œ ì„±ê³µ {userId}");
             return (cachedProfile, null);
         }
         catch (System.Exception ex)
         {
-            Debug.Log($"[Profile] ÇÁ·ÎÇÊ ·Îµå ½ÇÆĞ {ex.Message}");
+            Debug.Log($"[Profile] í”„ë¡œí•„ ë¡œë“œ ì‹¤íŒ¨ {ex.Message}");
             return (null, ex.Message);
         }
     }
@@ -103,25 +109,25 @@ public class ProfileManager : MonoBehaviour
     {
         if (!AuthManager.Instance.IsLoggedIn)
         {
-            return (false, "·Î±×ÀÎ X");
+            return (false, "ë¡œê·¸ì¸ X");
         }
 
         string userId = AuthManager.Instance.UserId;
 
         try
         {
-            Debug.Log($"[Profile] ´Ğ³×ÀÓ º¯°æ ½Ãµµ {newNickname}");
+            Debug.Log($"[Profile] ë‹‰ë„¤ì„ ë³€ê²½ ì‹œë„ {newNickname}");
 
             await usersRef.Child(userId).Child("nickname").SetValueAsync(newNickname).AsUniTask();
 
             cachedProfile.nickName = newNickname;
 
-            Debug.Log($"[Profile] ´Ğ³×ÀÓ º¯°æ ¼º°ø {newNickname}");
+            Debug.Log($"[Profile] ë‹‰ë„¤ì„ ë³€ê²½ ì„±ê³µ {newNickname}");
             return (true, null);
         }
         catch (System.Exception ex)
         {
-            Debug.Log($"[Profile] ´Ğ³×ÀÓ º¯°æ ½ÇÆĞ {ex.Message}");
+            Debug.Log($"[Profile] ë‹‰ë„¤ì„ ë³€ê²½ ì‹¤íŒ¨ {ex.Message}");
             return (false, ex.Message);
         }
     }
@@ -142,7 +148,7 @@ public class ProfileManager : MonoBehaviour
         }
         catch (System.Exception ex)
         {
-            Debug.LogError($"[Profile] ÇÁ·ÎÇÊ È®ÀÎ ½ÇÆĞ: {ex.Message}");
+            Debug.LogError($"[Profile] í”„ë¡œí•„ í™•ì¸ ì‹¤íŒ¨: {ex.Message}");
             return false;
         }
     }

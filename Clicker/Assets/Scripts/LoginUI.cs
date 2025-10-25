@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -26,6 +26,10 @@ public class LoginUI : MonoBehaviour
     public Button profileButton;
     public TextMeshProUGUI profileText;
 
+    public Button LogOutButton;
+
+    public ProfileUI profileUI;
+
     private async UniTaskVoid Start()
     {
         SetButtonsInteractable(false);
@@ -37,15 +41,20 @@ public class LoginUI : MonoBehaviour
         anonymouslyLoginButton.onClick.AddListener(() => OnAnonyMouslyLoginButtonClicked().Forget());
         profileButton.onClick.AddListener(() =>
         {
-            UpdateUI().Forget();
+            UpdateUI();
+        });
+        LogOutButton.onClick.AddListener(() =>
+        {
+            AuthManager.Instance.SignOut();
+            UpdateUI();
         });
 
         SetButtonsInteractable(true);
 
-        UpdateUI().Forget();
+        UpdateUI();
     }
 
-    public async UniTaskVoid UpdateUI()
+    public void UpdateUI()
     {
         if (AuthManager.Instance == null || !AuthManager.Instance.IsInitialized)
             return;
@@ -76,7 +85,8 @@ public class LoginUI : MonoBehaviour
         var (success, error) = await AuthManager.Instance.SignInWithEmailAsync(email, password);
         if (success)
         {
-
+            await ProfileManager.Instance.LoadProfileAsync();
+            await profileUI.ProfileUIActiveAsync();
         }
         else
         {
@@ -84,7 +94,7 @@ public class LoginUI : MonoBehaviour
         }
 
         SetButtonsInteractable(true);
-        UpdateUI().Forget();
+        UpdateUI();
     }
 
     private async UniTaskVoid OnSignUpButtonClicked()
@@ -105,7 +115,7 @@ public class LoginUI : MonoBehaviour
         }
 
         SetButtonsInteractable(true);
-        UpdateUI().Forget();
+        UpdateUI();
     }
 
     private async UniTaskVoid OnAnonyMouslyLoginButtonClicked()
@@ -115,7 +125,8 @@ public class LoginUI : MonoBehaviour
         var (success, error) = await AuthManager.Instance.SignInAnonymouslyAsync();
         if (success)
         {
-
+            await ProfileManager.Instance.LoadProfileAsync();
+            await profileUI.ProfileUIActiveAsync();
         }
         else
         {
@@ -123,7 +134,7 @@ public class LoginUI : MonoBehaviour
         }
 
         SetButtonsInteractable(true);
-        UpdateUI().Forget();
+        UpdateUI();
     }
 
     private void ShowError(string message)
