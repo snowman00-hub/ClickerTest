@@ -7,8 +7,8 @@ public class AuthManager : MonoBehaviour
     private static AuthManager instance;
     public static AuthManager Instance => instance;
         
-    private FirebaseAuth auth;
-    private FirebaseUser currentUser;
+    private FirebaseAuth auth = null;
+    private FirebaseUser currentUser = null;
     private bool isInitialized = false;
 
     public FirebaseUser CurrentUser => currentUser;

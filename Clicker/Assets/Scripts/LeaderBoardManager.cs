@@ -37,7 +37,7 @@ public class LeaderBoardManager : MonoBehaviour
 
         try
         {
-            Debug.Log($"[Leaderboard] 저장 시도");
+            Debug.Log($"[Leaderboard] 리더보드 저장 시도");
 
             var rankData = new Dictionary<string, object>();
             rankData.Add("nickname", ProfileManager.Instance.CachedProfile.nickName);
@@ -45,30 +45,49 @@ public class LeaderBoardManager : MonoBehaviour
             rankData.Add("timestamp", ServerValue.Timestamp);
             await leaderboardRef.Child(uid).SetValueAsync(rankData).AsUniTask();
 
-            Debug.Log($"[Leaderboard] 저장 성공");
+            Debug.Log($"[Leaderboard] 리더보드 저장 성공");
             return (true, null);
         }
         catch (System.Exception ex)
         {
-            Debug.LogError($"[Leaderboard] 저장 실패! {ex.Message}");
+            Debug.LogError($"[Leaderboard] 리더보드 저장 실패! {ex.Message}");
             return (false, ex.Message);
         }
     }
 
-    public async UniTask<List<RankData>> LoadRankDataAsync(int limit = 10)
+    public async UniTask<List<RankData>> LoadRankDatasAsync(int limit = 10)
     {
         var list = new List<RankData>();
 
+        if (!AuthManager.Instance.IsLoggedIn)
+        {
+            return list;
+        }
+
         try
         {
-            Debug.Log($"[LeaderBoard] 로드 시도");
-            
+            Debug.Log($"[LeaderBoard] 리더보드 로드 시도");
+            Query query = leaderboardRef.OrderByChild("score").LimitToLast(limit);
+
+            DataSnapshot snapshot = await query.GetValueAsync().AsUniTask();
+            if (snapshot.Exists)
+            {
+                foreach (DataSnapshot child in snapshot.Children)
+                {
+                    string json = child.GetRawJsonValue();
+                    RankData data = RankData.FromJson(json);
+                    list.Add(data);
+                }
+            }
+
+            Debug.Log($"[LeaderBoard] 리더보드 로드 성공");
         }
         catch (System.Exception ex) 
         {
-            Debug.Log($"[LeaderBoard] 로드 실패 {ex.Message}");
+            Debug.Log($"[LeaderBoard] 리더보드 로드 실패 {ex.Message}");
         }
 
+        list.Reverse();
         return list;
     }
 }

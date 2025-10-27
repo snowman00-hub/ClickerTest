@@ -28,6 +28,7 @@ public class ScoreManager : MonoBehaviour
         scoresRef = FirebaseDatabase.DefaultInstance.RootReference.Child("scores");
 
         Debug.Log("[Score] 초기화 완료");
+        await UniTask.Yield();
         await LoadBestScoreAsync();
     }
 

@@ -1,7 +1,9 @@
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
+using static UnityEditor.Progress;
 
 public class ScoreUI : MonoBehaviour
 {
@@ -17,6 +19,12 @@ public class ScoreUI : MonoBehaviour
 
     public Button recordsResetButton;
     public Button recordsCloseButton;
+
+    // 리더보드
+    public GameObject leaderboardWindow;
+    public Transform leaderboardRecordParent;
+    public Button leaderboardRefreshButton;
+    public Button leaderboardCloseButton;
 
     private void Start()
     {
@@ -39,6 +47,30 @@ public class ScoreUI : MonoBehaviour
             Destroy(recordPrefabParent.GetChild(i).gameObject);
         }
         recordsWindow.SetActive(false);
+    }
+
+    private async UniTaskVoid ShowLeaderboardAsync()
+    {
+        SetInteractableScoreWindow(false);
+
+        try
+        {
+            /////////// 여기 만드는 중
+            var list = await LeaderBoardManager.Instance.LoadRankDatasAsync();
+            for(int i = 0; i < list.Count; i++)
+            {
+                var tmp = Instantiate(recordPrefab, leaderboardRecordParent).GetComponentInChildren<TextMeshProUGUI>();
+                tmp.text = $"{i, -5} {list[i].userId, - 15} {list[i].score,5}점";
+            }
+
+            leaderboardWindow.SetActive(true);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Log($"리더 보드 보기 실패 : {ex.Message}");
+        }
+
+        SetInteractableScoreWindow(true);
     }
 
     private async UniTaskVoid ShowRecordsAsync()
