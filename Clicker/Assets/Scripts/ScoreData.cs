@@ -20,7 +20,7 @@ public class ScoreData
 
     public DateTime GetDateTime()
     {
-        return DateTimeOffset.FromUnixTimeSeconds(timestamp).LocalDateTime;
+        return DateTimeOffset.FromUnixTimeMilliseconds(timestamp).LocalDateTime;
     }
 
     public string GetDateString()

@@ -31,7 +31,7 @@ public class ScoreManager : MonoBehaviour
         await LoadBestScoreAsync();
     }
 
-    private async UniTask<int> LoadBestScoreAsync()
+    public async UniTask<int> LoadBestScoreAsync()
     {
         if (!AuthManager.Instance.IsLoggedIn)
             return 0;
@@ -171,6 +171,7 @@ public class ScoreManager : MonoBehaviour
             Debug.LogError($"[Score] 히스토리 로드 실패: {ex.Message}");
         }
 
+        list.Reverse();
         return list;
     }
 }

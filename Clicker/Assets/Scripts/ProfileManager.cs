@@ -31,10 +31,10 @@ public class ProfileManager : MonoBehaviour
     private async UniTaskVoid Start()
     {
         await UniTask.WaitUntil(()=>AuthManager.Instance.IsInitialized);
-        await LoadProfileAsync();
 
         databaseRef = FirebaseDatabase.DefaultInstance.RootReference;
         usersRef = databaseRef.Child("users");
+        await LoadProfileAsync();
 
         Debug.Log("[Profile] ProfileManager 초기화 완료");
 

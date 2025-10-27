@@ -90,6 +90,16 @@ public class MovingCircle : MonoBehaviour
                 cancellationTokenSource.Cancel();
                 timerText.text = "시간 종료!";
                 finalScoreText.text = "점수 : " + currentScore.ToString();
+
+                try
+                {
+                    await ScoreManager.Instance.SaveScoreAsync(currentScore);
+                }
+                catch (System.Exception ex) 
+                {
+                    Debug.Log($"점수 저장 실패: {ex.Message}");
+                }
+
                 endUI.SetActive(true);
             }
         }
