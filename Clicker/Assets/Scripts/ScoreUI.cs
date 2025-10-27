@@ -15,9 +15,30 @@ public class ScoreUI : MonoBehaviour
 
     public GameObject recordsWindow;
 
+    public Button recordsResetButton;
+    public Button recordsCloseButton;
+
     private void Start()
     {
-        lookRecordButton.onClick.AddListener(() => ShowRecordsAsync().Forget());       
+        lookRecordButton.onClick.AddListener(() => ShowRecordsAsync().Forget());
+        recordsResetButton.onClick.AddListener(() => ReFreshRecords());
+        recordsCloseButton.onClick.AddListener(() => CloseRecordWindow());
+    }
+
+    private void ReFreshRecords()
+    {
+        CloseRecordWindow();
+        ShowRecordsAsync().Forget();
+    }
+
+    private void CloseRecordWindow()
+    {
+        bestRecordText.text = "최고 기록: 0점";
+        for(int i=0;i<recordPrefabParent.childCount;i++)
+        {
+            Destroy(recordPrefabParent.GetChild(i).gameObject);
+        }
+        recordsWindow.SetActive(false);
     }
 
     private async UniTaskVoid ShowRecordsAsync()

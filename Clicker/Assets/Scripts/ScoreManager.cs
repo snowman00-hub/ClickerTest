@@ -15,7 +15,7 @@ public class ScoreManager : MonoBehaviour
 
     private void Awake()
     {
-        if(instance == null)
+        if (instance == null)
         {
             instance = this;
         }
@@ -53,7 +53,7 @@ public class ScoreManager : MonoBehaviour
             }
 
         }
-        catch(System.Exception ex)
+        catch (System.Exception ex)
         {
             Debug.LogError($"[Score] 최고 기록 로드 실패 : {ex.Message}");
         }
@@ -83,7 +83,7 @@ public class ScoreManager : MonoBehaviour
             await newHistoryRef.UpdateChildrenAsync(scoreData).AsUniTask();
 
             bool shouldUpdateBestScore = false;
-            if(cachedBestScore == 0)
+            if (cachedBestScore == 0)
             {
                 var bestScoreSnapshot = await scoresRef.Child(uid).Child("bestScore")
                     .GetValueAsync().AsUniTask();
@@ -92,12 +92,12 @@ public class ScoreManager : MonoBehaviour
                 {
                     shouldUpdateBestScore = true;
                 }
-                else if ( score> cachedBestScore)
+                else if (score > cachedBestScore)
                 {
                     shouldUpdateBestScore = true;
                 }
             }
-            else if (score > cachedBestScore) 
+            else if (score > cachedBestScore)
             {
                 shouldUpdateBestScore = true;
             }
@@ -110,7 +110,7 @@ public class ScoreManager : MonoBehaviour
             Debug.Log($"점수 저장 성공: {score}");
             return (true, null);
         }
-        catch(System.Exception ex)
+        catch (System.Exception ex)
         {
             Debug.LogError($"[Score] 점수 저장 실패! {ex.Message}");
             return (false, ex.Message);
@@ -128,12 +128,13 @@ public class ScoreManager : MonoBehaviour
         {
             await scoresRef.Child(uid).Child("bestScore").SetValueAsync(newBestScore).AsUniTask();
             cachedBestScore = newBestScore;
+            await LeaderBoardManager.Instance.SaveRankDataAsync();
 
             Debug.Log($"[Score] 최고 기록 갱신: {newBestScore}");
         }
-        catch(System.Exception ex)
+        catch (System.Exception ex)
         {
-            Debug.LogErrorFormat("[Score] 최고 기록 갱신 실패 {0}", ex.Message );
+            Debug.LogErrorFormat("[Score] 최고 기록 갱신 실패 {0}", ex.Message);
         }
     }
 
@@ -156,7 +157,7 @@ public class ScoreManager : MonoBehaviour
             DataSnapshot snapshot = await query.GetValueAsync().AsUniTask();
             if (snapshot.Exists)
             {
-                foreach(DataSnapshot child in snapshot.Children)
+                foreach (DataSnapshot child in snapshot.Children)
                 {
                     string json = child.GetRawJsonValue();
                     ScoreData data = ScoreData.FromJson(json);
@@ -166,7 +167,7 @@ public class ScoreManager : MonoBehaviour
 
             Debug.Log($"[Score] 히스토리 로드 성공: {list.Count}개");
         }
-        catch(System.Exception ex)
+        catch (System.Exception ex)
         {
             Debug.LogError($"[Score] 히스토리 로드 실패: {ex.Message}");
         }

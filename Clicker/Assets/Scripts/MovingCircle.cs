@@ -15,7 +15,8 @@ public class MovingCircle : MonoBehaviour
     private RectTransform circleRect;
 
     private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-    private int timer = 10;
+    public int gameTime = 5;
+    private int timer;
     private int currentScore;
 
     public GameObject startUI;
@@ -27,6 +28,9 @@ public class MovingCircle : MonoBehaviour
 
     private void Awake()
     {
+        timer = gameTime;
+        timerText.text = "시간 : " + timer.ToString();
+
         circleRect = Circle.GetComponent<RectTransform>();
         Circle.onClick.AddListener(AddScore);
         backgroundCircle.onClick.AddListener(AddScore);
@@ -39,7 +43,7 @@ public class MovingCircle : MonoBehaviour
         {
             endUI.SetActive(false);
             UpdateMove().Forget();
-            timer = 10;
+            timer = gameTime;
             currentScore = 0;
             scoreText.text = "점수 : " + currentScore.ToString();
             timerText.text = "시간 : " + timer.ToString();
@@ -69,7 +73,9 @@ public class MovingCircle : MonoBehaviour
 
     private void AddScore()
     {
-        if (timer <= 0) return;
+        if (timer <= 0) 
+            return;
+
         currentScore++;
         scoreText.text = "점수 : " + currentScore.ToString();
     }
@@ -104,5 +110,4 @@ public class MovingCircle : MonoBehaviour
             }
         }
     }
-
 }
