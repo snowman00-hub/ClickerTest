@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+Ôªøusing Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SocialPlatforms.Impl;
@@ -20,7 +20,7 @@ public class ScoreUI : MonoBehaviour
     public Button recordsResetButton;
     public Button recordsCloseButton;
 
-    // ∏Æ¥ı∫∏µÂ
+    // Î¶¨ÎçîÎ≥¥Îìú
     public GameObject leaderboardWindow;
     public Transform leaderboardRecordParent;
     public Button leaderboardRefreshButton;
@@ -31,6 +31,16 @@ public class ScoreUI : MonoBehaviour
         lookRecordButton.onClick.AddListener(() => ShowRecordsAsync().Forget());
         recordsResetButton.onClick.AddListener(() => ReFreshRecords());
         recordsCloseButton.onClick.AddListener(() => CloseRecordWindow());
+
+        lookReaderBoardButton.onClick.AddListener(() => ShowLeaderboardAsync().Forget());
+        leaderboardRefreshButton.onClick.AddListener(RefreshLeaderboard);
+        leaderboardCloseButton.onClick.AddListener(() => CloseLeaderboardWindow());
+    }
+
+    private void RefreshLeaderboard()
+    {
+        CloseLeaderboardWindow();
+        ShowLeaderboardAsync().Forget();
     }
 
     private void ReFreshRecords()
@@ -41,12 +51,21 @@ public class ScoreUI : MonoBehaviour
 
     private void CloseRecordWindow()
     {
-        bestRecordText.text = "√÷∞Ì ±‚∑œ: 0¡°";
-        for(int i=0;i<recordPrefabParent.childCount;i++)
+        bestRecordText.text = "ÏµúÍ≥† Í∏∞Î°ù: 0Ï†ê";
+        for (int i = 0; i < recordPrefabParent.childCount; i++)
         {
             Destroy(recordPrefabParent.GetChild(i).gameObject);
         }
         recordsWindow.SetActive(false);
+    }
+
+    private void CloseLeaderboardWindow()
+    {
+        for (int i = 0; i < leaderboardRecordParent.childCount; i++)
+        {
+            Destroy(leaderboardRecordParent.GetChild(i).gameObject);
+        }
+        leaderboardWindow.SetActive(false);
     }
 
     private async UniTaskVoid ShowLeaderboardAsync()
@@ -55,19 +74,18 @@ public class ScoreUI : MonoBehaviour
 
         try
         {
-            /////////// ø©±‚ ∏∏µÂ¥¬ ¡ﬂ
             var list = await LeaderBoardManager.Instance.LoadRankDatasAsync();
-            for(int i = 0; i < list.Count; i++)
+            for (int i = 0; i < list.Count; i++)
             {
                 var tmp = Instantiate(recordPrefab, leaderboardRecordParent).GetComponentInChildren<TextMeshProUGUI>();
-                tmp.text = $"{i, -5} {list[i].userId, - 15} {list[i].score,5}¡°";
+                tmp.text = $"<color=yellow>{i + 1,-5}</color> {list[i].nickname}          {list[i].score,5}Ï†ê";
             }
 
             leaderboardWindow.SetActive(true);
         }
         catch (System.Exception ex)
         {
-            Debug.Log($"∏Æ¥ı ∫∏µÂ ∫∏±‚ Ω«∆– : {ex.Message}");
+            Debug.Log($"Î¶¨Îçî Î≥¥Îìú Î≥¥Í∏∞ Ïã§Ìå® : {ex.Message}");
         }
 
         SetInteractableScoreWindow(true);
@@ -80,19 +98,19 @@ public class ScoreUI : MonoBehaviour
         try
         {
             await ScoreManager.Instance.LoadBestScoreAsync();
-            bestRecordText.text = $"√÷∞Ì ±‚∑œ: {ScoreManager.Instance.CachedBestScore}¡°";
+            bestRecordText.text = $"ÏµúÍ≥† Í∏∞Î°ù: {ScoreManager.Instance.CachedBestScore}Ï†ê";
             var list = await ScoreManager.Instance.LoadHistoryAsync();
-            foreach(var item in list)
+            foreach (var item in list)
             {
                 var tmp = Instantiate(recordPrefab, recordPrefabParent).GetComponentInChildren<TextMeshProUGUI>();
-                tmp.text = $"{item.score}¡° - {item.GetDateString()}";
+                tmp.text = $"{item.score}Ï†ê - {item.GetDateString()}";
             }
 
             recordsWindow.SetActive(true);
         }
-        catch(System.Exception ex)
+        catch (System.Exception ex)
         {
-            Debug.Log($"±‚∑œ ∫∏±‚ Ω«∆– : {ex.Message}");
+            Debug.Log($"Í∏∞Î°ù Î≥¥Í∏∞ Ïã§Ìå® : {ex.Message}");
         }
 
         SetInteractableScoreWindow(true);
